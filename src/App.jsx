@@ -1,13 +1,11 @@
-import logo from './logo.svg';
+import Counter from './Counter';
 import './App.css';
 
-function Greeting(props) {
+function App(props) {
   
   return (
-    <p style={ props.style} >
-  Hello {props.name}
-    </p>
+   <Counter/>
   );
 }
 
-export default Greeting;
+export default App;
