@@ -1,10 +1,10 @@
-import Counter from './Counter';
+import Greeting from './Greeting';
 import './App.css';
 
 function App(props) {
   
   return (
-   <Counter/>
+   <Greeting/>
   );
 }
 
