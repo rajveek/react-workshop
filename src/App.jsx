@@ -1,10 +1,10 @@
-import Greeting from './Greeting';
+import Todo from './Todo';
 import './App.css';
 
 function App(props) {
   
   return (
-   <Greeting/>
+   <Todo/>
   );
 }
 
