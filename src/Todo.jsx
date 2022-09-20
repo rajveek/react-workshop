@@ -12,11 +12,11 @@ export default function Todo() {
   }
   return (
     <div>
-      <h1>To do list</h1>.
+      <h1>To do list</h1>
       <input value={inputValue} onChange={updateVal}></input>
       <button onClick={addTodo}>Add</button>
       {tasks.map((item, i) => (
-        <p>{item}</p>
+        <li key={i}> {item}</li>
       ))}
     </div>
   );
