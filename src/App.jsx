@@ -1,10 +1,10 @@
-import Counter from './Counter';
+import Login from './components/Login';
 import './App.css';
 
 function App(props) {
   
   return (
-   <Counter/>
+   <Login/>
   );
 }
 
