@@ -1,10 +1,10 @@
 import Counter from "./Counter";
 
-export default function Head({ count, setCount }) {
+export default function Head() {
   return (
     <div >
       <h1>head</h1>
-      <Counter count={count} setCount={setCount} />
+      <Counter/>
     </div>
   );
 }
