@@ -1,8 +1,9 @@
+import { useState } from "react";
 
+export default function Todo() {
+  const [inputValue, setInputValue] = useState("");
+  const [tasks, setTasks] = useState([]);
 
-
-export default function Todo({ inputValue,setInputValue,tasks,setTasks }) {
-  
   function addTodo(e) {
     setTasks(tasks.concat(inputValue));
     setInputValue("");
@@ -10,13 +11,28 @@ export default function Todo({ inputValue,setInputValue,tasks,setTasks }) {
   function updateVal(e) {
     setInputValue(e.target.value);
   }
+  function deleteTask(i) {
+    //const tasks = tasks.filter((item) => item.id !== i);
+    setTasks(tasks);
+  }
   return (
-    <div>
+    <div className="container text-center">
       <h1>To do list</h1>
       <input value={inputValue} onChange={updateVal}></input>
-      <button onClick={addTodo} variant="primary">Add</button>
+      <button onClick={addTodo} variant="primary" className="bi bi-plus">
+        +
+      </button>
       {tasks.map((item, i) => (
-        <li key={i}> {item}</li>
+        <ul class="list-group">
+          <li key={i} class="list-group-item">
+            
+            <input value={item}></input>
+            &nbsp;<button variant="primary">Edit</button> &nbsp;
+            <button variant="primary" >
+              -
+            </button>
+          </li>
+        </ul>
       ))}
     </div>
   );
