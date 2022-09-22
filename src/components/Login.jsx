@@ -9,13 +9,15 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState(false);
   const [age, setAge] = useState(0);
   const [ageError, setAgeError] = useState(false);
-  const [radiochecked, setradiochecked] = useState([]);
-  const [radiocheckederror, setradiocheckederror] = useState("");
   const [userType, setUserType] = useState("");
   const [userTypeError, setuserTypeError] = useState(false);
-  const[successMessage,setSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
+  const [selectedGender, setGender] = useState("");
+  const [genderError, setgenderError] = useState(false);
+
   function validateForm(e) {
     e.preventDefault();
+    console.log(selectedGender);
     if (name === "") {
       setNameError(true);
     } else {
@@ -41,20 +43,25 @@ export default function Login() {
     } else {
       setuserTypeError(false);
     }
-    if((nameError === false && emailError ===false && passwordError ===false && userTypeError ===false && ageError===false)){
-        console.log(nameError)
-        console.log(emailError)
-        console.log(passwordError)
-        console.log(userTypeError)
-        console.log(ageError)
-        setSuccessMessage(true)
-      }  
-      else{
-        setSuccessMessage(false)
-      }
+    if (selectedGender === "") {
+      setgenderError(true);
+    } else {
+      setgenderError(false);
+    }
+    if (
+      name !== "" &&
+      userType !== "" &&
+      age > 18 &&
+      password !== "" &&
+      password.length > 8 &&
+      email !== "" && selectedGender !==""
+    ) {
+      
+      setSuccessMessage(!successMessage);
+    }
   }
   return (
-   <div className="container text-center">
+    <div className="container text-center">
       <h3>Signup</h3>
       <br></br>
       <form onSubmit={validateForm}>
@@ -122,30 +129,40 @@ export default function Login() {
           )}
         </div>
         <div className="mb-3">
-          <input
-            className="form-check-input"
-            name="flexRadioDefault"
-            type="radio"
-            value="F"
-            onChange={(e) => setradiochecked(!radiochecked)}
-          />
-          <label> Female</label> &nbsp;
-          <input
-            className="form-check-input"
-            name="flexRadioDefault"
-            type="radio"
-            value="M"
-            onChange={(e) => setradiochecked(!radiochecked)}
-          />
-          <label> Male</label> &nbsp;
-          <input
-            className="form-check-input"
-            name="flexRadioDefault"
-            type="radio"
-            value="O"
-            onChange={(e) => setradiochecked(!radiochecked)}
-          />
-          <label> Others</label>
+          <div>
+            <input
+              type="radio"
+              value="male"
+              name="gender"
+              checked={selectedGender === "male"}
+              onChange={(e) => setGender(e.target.value)}
+            />{" "}
+            Male
+            <input
+              type="radio"
+              value="female"
+              name="gender"
+              checked={selectedGender === "female"}
+              onChange={(e) => setGender(e.target.value)}
+            />{" "}
+            Female
+            <input
+              type="radio"
+              value="other"
+              name="gender"
+              checked={selectedGender === "other"}
+              onChange={(e) => setGender(e.target.value)}
+            />{" "}
+            Other
+          </div>
+          {genderError && (
+            <div>
+              <br></br>
+              <span className="alert alert-danger">
+                Please select your gender
+              </span>
+            </div>
+          )}
         </div>
         <div className="mb-3">
           <div className="btn-group">
@@ -176,13 +193,11 @@ export default function Login() {
         </div>
       </form>
       {successMessage && (
-            <div>
-              <br></br>
-              <span className="alert alert-success">
-                form submitted !
-              </span>
-            </div>
-          )}
-    </div> 
+        <div>
+          <br></br>
+          <span className="alert alert-success">form submitted !</span>
+        </div>
+      )}
+    </div>
   );
 }
