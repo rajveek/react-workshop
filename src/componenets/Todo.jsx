@@ -10,6 +10,17 @@ export default function Todo() {
   function addTodo(e) {
     setTasks(tasks.concat(inputValue));
     setInputValue("");
+     const taskname =inputValue
+    
+    fetch("http://localhost:3000/tasks",{
+      method:'POST',
+      body:JSON.stringify({taskname}),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      }
+    })
+    .then(res => res.json())
+    .then(body => console.log(body))
   }
   function updateVal(e) {
     setInputValue(e.target.value);

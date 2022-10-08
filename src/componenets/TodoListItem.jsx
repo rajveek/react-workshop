@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { TodoContext } from "./TodoContext";
 import { BsEyedropper } from "react-icons/bs";
 import {BsSdCard} from "react-icons/bs";
@@ -7,14 +7,41 @@ import {BsXOctagonFill} from "react-icons/bs";
 export default function TodoItem() {
   const [tasks, setTasks] = useContext(TodoContext);
   const [isEdit, setisEdit] = useState([]);
+  var temp=[]
+  
+  useEffect(()=>{
+   
+    console.log("in use effect")
+    fetch("http://localhost:3000/tasks")
+    .then(res=>res.json())
+    .then(body=>{ body.map(item=>{
+      temp.push(item.taskname);
+      
+    }
+  )
+}).then(a=>setTasks([...tasks,...temp]))
+    
+  },[])
 
   function updateItem(item, i, isEdit) {
     setisEdit([...isEdit,i]);
   }
 
-  function onSave(i) {
+  function onSave(item,i) {
     const newisEdit = isEdit.filter((item, o) => item !== i);
     setisEdit(newisEdit);
+    const taskname = item
+
+    fetch(`http://localhost:3000/tasks/${i}`,{
+      method:'PUT',
+      body:JSON.stringify({taskname}),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      }
+    })
+    .then(res => res.json())
+    .then(body => console.log(body))
+
   }
 
   function onUpdate(e, item, i) {
@@ -32,6 +59,9 @@ export default function TodoItem() {
   function deleteTask(i) {
     const newtasks = tasks.filter((item, o) => o !== i);
     setTasks(newtasks);
+    fetch(`http://localhost:3000/tasks/${i}`, {
+  method: 'DELETE',
+});
   }
 
   return (
@@ -47,7 +77,7 @@ export default function TodoItem() {
               {/* <button variant="primary" onClick={() => onSave(i)}>
                 save
               </button>{" "} */}
-              <BsSdCard onClick={() => onSave(i)} />
+              <BsSdCard onClick={() => onSave(item,i)} />
             </li>
           ) : (
             <li className="list-group-item">
