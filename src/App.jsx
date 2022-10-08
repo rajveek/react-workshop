@@ -1,11 +1,12 @@
-import Todo from "./componenets/Todo"
+
+import Todoapp from "./componenets/TodoApp";
 
 function App(props) {
   
 
   return (
     <div>
-   <Todo />
+   <Todoapp />
    </div>
   );
 }
