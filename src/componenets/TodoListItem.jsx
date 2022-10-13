@@ -5,6 +5,7 @@ import { BsSdCard } from "react-icons/bs";
 import { BsXOctagonFill } from "react-icons/bs";
 import axios from "axios";
 
+//const getTasks=axios.get("http://localhost:3000/tasks")
 export default function TodoItem() {
   const [tasks, setTasks] = useContext(TodoContext);
   const [isEdit, setisEdit] = useState([]);
@@ -12,7 +13,20 @@ export default function TodoItem() {
   let [error, updateError] = useState(null);
   var temp = [];
   var t = {};
+  let isResolved = false;
 
+  // getTasks.then((res)=>{
+  //   isResolved = true;
+  //   const body=res.data;
+  //   console.log(body)
+  //   body.map((item) => {
+  //     t.id = item.id;
+  //     t.taskname = item.taskname;
+  //     temp.push({ id: item.id, taskname: item.taskname });
+  //     //console.log("in use effect");
+  //   });
+  // }).then((a) => setTasks([...tasks, ...temp]))
+  
   useEffect(() => {
     console.log("in use effect");
     axios
@@ -126,6 +140,10 @@ export default function TodoItem() {
   if (error) {
     throw error;
   }
+  // if (!isResolved) {
+  //   console.log(getTasks)
+  //   throw getTasks;
+  // }
   return (
     <div>
       {tasks.map((item) => (

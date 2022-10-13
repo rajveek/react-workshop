@@ -34,8 +34,21 @@ export default function Todo() {
     setInputValue(e.target.value);
   }
   function sortList() {
-    const sort = tasks.sort();
-    setTasks([...sort]);
+    // const sort = tasks.sort();
+    // setTasks([...sort]);
+    const sort=tasks.sort((a, b) => {
+      let fa = a.taskname.toLowerCase(),
+          fb = b.taskname.toLowerCase();
+  
+      if (fa < fb) {
+          return -1;
+      }
+      if (fa > fb) {
+          return 1;
+      }
+      return 0;
+  });
+  setTasks([...sort])
   }
 
   return (
