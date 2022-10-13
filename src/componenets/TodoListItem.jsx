@@ -3,6 +3,7 @@ import { TodoContext } from "./TodoContext";
 import { BsEyedropper } from "react-icons/bs";
 import { BsSdCard } from "react-icons/bs";
 import { BsXOctagonFill } from "react-icons/bs";
+import axios from "axios";
 
 export default function TodoItem() {
   const [tasks, setTasks] = useContext(TodoContext);
@@ -13,16 +14,14 @@ export default function TodoItem() {
 
   useEffect(() => {
     console.log("in use effect");
-    fetch("http://localhost:3000/tasks")
-      .then((res) => res.json())
+    axios
+      .get("http://localhost:3000/tasks")
+      .then((res) => res.data)
       .then((body) => {
         body.map((item) => {
           t.id = item.id;
           t.taskname = item.taskname;
-          //temp.push(item.taskname);
           temp.push({ id: item.id, taskname: item.taskname });
-          //console.log(typeof temp)
-          //console.log(temp)
           console.log("in use effect");
         });
       })
@@ -50,14 +49,9 @@ export default function TodoItem() {
     });
 
     console.log("id:", i);
-    fetch(`http://localhost:3000/tasks/${i}`, {
-      method: "PUT",
-      body: JSON.stringify({ taskname }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    })
-      .then((res) => res.json())
+    axios
+      .put(`http://localhost:3000/tasks/${i}`, { taskname })
+      .then((res) => res.data)
       .then((body) => {
         console.log("after PUT call", body.id, body.taskname);
         setTasks(
@@ -73,32 +67,32 @@ export default function TodoItem() {
   }
 
   function onUpdate(e, item, i) {
-     console.log("inital upd val lenght :",updValue.length)
-    
-      updValue.map((item) => {
-        if (item.id === i) {
-          console.log("in if")
-          item.taskname = e.target.value;
-          return item;
-        } else {
-          console.log("in else")
-          
-          updValue.push({ id: i, taskname: e.target.value });
-        
-          return item;
-        }
-      })
-    
+    console.log("inital upd val lenght :", updValue.length);
+
+    updValue.map((item) => {
+      if (item.id === i) {
+        console.log("in if");
+        item.taskname = e.target.value;
+        return item;
+      } else {
+        console.log("in else");
+
+        updValue.push({ id: i, taskname: e.target.value });
+
+        return item;
+      }
+    });
   }
 
   function deleteTask(i) {
     // const newtasks = tasks.filter((item) => item.id !== i);
     // setTasks(newtasks);
-    fetch(`http://localhost:3000/tasks/${i}`, {
-      method: "DELETE",
-    })
-      .then((res) => res.json())
-      .then((body) => {
+    axios
+      .delete(`http://localhost:3000/tasks/${i}`, {
+        //method: "DELETE",
+      })
+      //.then((res) => res.data)
+      .then((res) => {
         const newtasks = tasks.filter((item) => item.id !== i);
         setTasks(newtasks);
       });
