@@ -7,16 +7,28 @@ import axios from "axios";
 export default function Todo() {
   const [inputValue, setInputValue] = useState("");
   const [tasks, setTasks] = useContext(TodoContext);
+  let [error, updateError] = useState(null);
 
-  function addTodo(e) {
+  const addTodo =async(e)=> {
+    try{
     setInputValue("");
     const taskname = inputValue;
     var temp = [];
-    axios.post("http://localhost:3000/tasks", { taskname }).then((res) => {
-      temp.push(res.data);
-      console.log("body :", res.data);
-      setTasks([...tasks, ...temp]);
-    });
+    const res=await axios.post("http://localhost:3000/tasks", { taskname })
+    // .then((res) => {
+    //   temp.push(res.data);
+    //   console.log("body :", res.data);
+    //   setTasks([...tasks, ...temp]);
+    // });
+    await temp.push(res.data);
+    console.log("body :", res.data);
+    await setTasks([...tasks, ...temp]);
+    }
+    catch(err){
+        console.error(err);
+        updateError(err);
+      }
+    
   }
   function updateVal(e) {
     setInputValue(e.target.value);

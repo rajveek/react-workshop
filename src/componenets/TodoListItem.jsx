@@ -9,6 +9,7 @@ export default function TodoItem() {
   const [tasks, setTasks] = useContext(TodoContext);
   const [isEdit, setisEdit] = useState([]);
   const [updValue, setUpdValue] = useState([{}]);
+  let [error, updateError] = useState(null);
   var temp = [];
   var t = {};
 
@@ -33,7 +34,8 @@ export default function TodoItem() {
     setisEdit([...isEdit, i]);
   }
 
-  function onSave(i) {
+  const onSave = async(i) =>{
+    try{
     const newisEdit = isEdit.filter((item, o) => item !== i);
     setisEdit(newisEdit);
     var taskname = "";
@@ -49,11 +51,23 @@ export default function TodoItem() {
     });
 
     console.log("id:", i);
-    axios
+    const res=await axios
       .put(`http://localhost:3000/tasks/${i}`, { taskname })
-      .then((res) => res.data)
-      .then((body) => {
-        console.log("after PUT call", body.id, body.taskname);
+      // .then((res) => res.data)
+      // .then((body) => {
+      //   console.log("after PUT call", body.id, body.taskname);
+      //   setTasks(
+      //     tasks.map((item) => {
+      //       if (item.id === body.id) {
+      //         item.taskname = body.taskname;
+      //         return item;
+      //       }
+      //       return item;
+      //     })
+      //   );
+      // });
+      const body=await res.data
+      await console.log("after PUT call", body.id, body.taskname);
         setTasks(
           tasks.map((item) => {
             if (item.id === body.id) {
@@ -62,8 +76,12 @@ export default function TodoItem() {
             }
             return item;
           })
-        );
-      });
+        )
+    }
+    catch(err){
+      console.error(err);
+      updateError(err);
+    }
   }
 
   function onUpdate(e, item, i) {
@@ -84,20 +102,30 @@ export default function TodoItem() {
     });
   }
 
-  function deleteTask(i) {
+  const deleteTask= async(i)=> {
+    try{
     // const newtasks = tasks.filter((item) => item.id !== i);
     // setTasks(newtasks);
-    axios
+    await axios
       .delete(`http://localhost:3000/tasks/${i}`, {
         //method: "DELETE",
       })
       //.then((res) => res.data)
-      .then((res) => {
-        const newtasks = tasks.filter((item) => item.id !== i);
-        setTasks(newtasks);
-      });
+      // .then((res) => {
+      //   const newtasks = tasks.filter((item) => item.id !== i);
+      //   setTasks(newtasks);
+      // });
+      const newtasks = await tasks.filter((item) => item.id !== i);
+      await  setTasks(newtasks);
+    }
+    catch(err){
+      console.error(err);
+      updateError(err);
+    }
   }
-
+  if (error) {
+    throw error;
+  }
   return (
     <div>
       {tasks.map((item) => (
