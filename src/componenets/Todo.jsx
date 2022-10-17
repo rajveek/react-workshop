@@ -3,26 +3,30 @@ import { TodoContext } from "./TodoContext";
 import { BsPlusLg } from "react-icons/bs";
 import { BsSortAlphaUp } from "react-icons/bs";
 import axios from "axios";
+import {  useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function Todo() {
+  const queryClient = useQueryClient();
   const [inputValue, setInputValue] = useState("");
-  const [tasks, setTasks] = useContext(TodoContext);
+  const [, ] = useContext(TodoContext);
   let [error, updateError] = useState(null);
-
+  const { data: tasks } = useQuery(
+    ["todos"],
+    () => {
+      return axios.get("http://localhost:3000/tasks").then((res) => res.data);
+    },
+    { useErrorBoundary: true ,suspense:true}
+  );
   const addTodo =async(e)=> {
     try{
     setInputValue("");
     const taskname = inputValue;
-    var temp = [];
+    
     const res=await axios.post("http://localhost:3000/tasks", { taskname })
-    // .then((res) => {
-    //   temp.push(res.data);
-    //   console.log("body :", res.data);
-    //   setTasks([...tasks, ...temp]);
-    // });
-    await temp.push(res.data);
+    
+    queryClient.setQueryData(['todos'],[...tasks,res.data])
+    
     console.log("body :", res.data);
-    await setTasks([...tasks, ...temp]);
     }
     catch(err){
         console.error(err);
@@ -34,9 +38,8 @@ export default function Todo() {
     setInputValue(e.target.value);
   }
   function sortList() {
-    // const sort = tasks.sort();
-    // setTasks([...sort]);
-    const sort=tasks.sort((a, b) => {
+    
+    const sor=tasks.sort((a, b) => {
       let fa = a.taskname.toLowerCase(),
           fb = b.taskname.toLowerCase();
   
@@ -47,10 +50,15 @@ export default function Todo() {
           return 1;
       }
       return 0;
-  });
-  setTasks([...sort])
+  })
+  console.log(sor)
+  queryClient.setQueryData(["todos"], sor);
+  console.log("tasks :",tasks)
   }
 
+  if (error) {
+    throw error;
+  }
   return (
     <div>
       <input
@@ -59,12 +67,7 @@ export default function Todo() {
         placeholder="Add Task"
       ></input>
 
-      {/* <button onClick={addTodo} variant="primary" className="bi bi-plus">
-        +
-      </button>
-      <button onClick={sortList} variant="primary" className="bi bi-plus">
-        Sort
-      </button> */}
+      
       <BsPlusLg onClick={addTodo} variant="primary" />
       <BsSortAlphaUp onClick={sortList} variant="primary" />
     </div>

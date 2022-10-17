@@ -1,20 +1,30 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 import { TodoContext } from "./TodoContext";
 import { BsEyedropper } from "react-icons/bs";
 import { BsSdCard } from "react-icons/bs";
 import { BsXOctagonFill } from "react-icons/bs";
 import axios from "axios";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 //const getTasks=axios.get("http://localhost:3000/tasks")
 export default function TodoItem() {
-  const [tasks, setTasks] = useContext(TodoContext);
+  const queryClient = useQueryClient();
+  const [, ] = useContext(TodoContext);
   const [isEdit, setisEdit] = useState([]);
-  const [updValue, setUpdValue] = useState([{}]);
+  const [updValue, ] = useState([{}]);
   let [error, updateError] = useState(null);
-  var temp = [];
-  var t = {};
-  let isResolved = false;
 
+  //let isResolved = false;
+  const { data: tasks, isLoading } = useQuery(
+    ["todos"],
+    () => {
+      return axios.get("http://localhost:3000/tasks").then((res) => res.data);
+    },
+    { useErrorBoundary: true }
+  );
+  if (isLoading) {
+    return null;
+  }
   // getTasks.then((res)=>{
   //   isResolved = true;
   //   const body=res.data;
@@ -26,47 +36,48 @@ export default function TodoItem() {
   //     //console.log("in use effect");
   //   });
   // }).then((a) => setTasks([...tasks, ...temp]))
-  
-  useEffect(() => {
-    console.log("in use effect");
-    axios
-      .get("http://localhost:3000/tasks")
-      .then((res) => res.data)
-      .then((body) => {
-        body.map((item) => {
-          t.id = item.id;
-          t.taskname = item.taskname;
-          temp.push({ id: item.id, taskname: item.taskname });
-          console.log("in use effect");
-        });
-      })
-      .then((a) => setTasks([...tasks, ...temp]));
-    console.log(tasks);
-  }, []);
+
+  // useEffect(() => {
+  //   console.log("in use effect");
+  //   axios
+  //     .get("http://localhost:3000/tasks")
+  //     .then((res) => res.data)
+  //     .then((body) => {
+  //       body.map((item) => {
+  //         t.id = item.id;
+  //         t.taskname = item.taskname;
+  //         temp.push({ id: item.id, taskname: item.taskname });
+  //         console.log("in use effect");
+  //       });
+  //     })
+  //     .then((a) => setTasks([...tasks, ...temp]));
+  //   console.log(tasks);
+  // }, []);
 
   function updateItem(item, i, isEdit) {
     setisEdit([...isEdit, i]);
   }
 
-  const onSave = async(i) =>{
-    try{
-    const newisEdit = isEdit.filter((item, o) => item !== i);
-    setisEdit(newisEdit);
-    var taskname = "";
-    console.log(updValue);
-    updValue.map((item) => {
-      console.log("in updvalue ;", item);
-      if (item.id === i) {
-        taskname = item.taskname;
-        console.log(item.taskname, item.id);
+  const onSave = async (i) => {
+    try {
+      const newisEdit = isEdit.filter((item, o) => item !== i);
+      setisEdit(newisEdit);
+      var taskname = "";
+      console.log(updValue);
+      updValue.map((item) => {
+        console.log("in updvalue ;", item);
+        if (item.id === i) {
+          taskname = item.taskname;
+          console.log(item.taskname, item.id);
+          return item;
+        }
         return item;
-      }
-      return item;
-    });
+      });
 
-    console.log("id:", i);
-    const res=await axios
-      .put(`http://localhost:3000/tasks/${i}`, { taskname })
+      console.log("id:", i);
+      const res = await axios.put(`http://localhost:3000/tasks/${i}`, {
+        taskname,
+      });
       // .then((res) => res.data)
       // .then((body) => {
       //   console.log("after PUT call", body.id, body.taskname);
@@ -80,23 +91,23 @@ export default function TodoItem() {
       //     })
       //   );
       // });
-      const body=await res.data
-      await console.log("after PUT call", body.id, body.taskname);
-        setTasks(
-          tasks.map((item) => {
-            if (item.id === body.id) {
-              item.taskname = body.taskname;
-              return item;
-            }
-            return item;
-          })
-        )
-    }
-    catch(err){
+      const body = await res.data;
+      console.log("after PUT call", body.id, body.taskname);
+      
+      queryClient.setQueryData(
+        ["todos"],
+        tasks.map((item) => {
+          if (item.id === body.id) {
+            return { ...item, taskname: body.taskname };
+          }
+          return item;
+        })
+      );
+    } catch (err) {
       console.error(err);
       updateError(err);
     }
-  }
+  };
 
   function onUpdate(e, item, i) {
     console.log("inital upd val lenght :", updValue.length);
@@ -116,30 +127,24 @@ export default function TodoItem() {
     });
   }
 
-  const deleteTask= async(i)=> {
-    try{
-    // const newtasks = tasks.filter((item) => item.id !== i);
-    // setTasks(newtasks);
-    await axios
-      .delete(`http://localhost:3000/tasks/${i}`, {
-        //method: "DELETE",
-      })
-      //.then((res) => res.data)
-      // .then((res) => {
-      //   const newtasks = tasks.filter((item) => item.id !== i);
-      //   setTasks(newtasks);
-      // });
+  const deleteTask = async (i) => {
+    try {
+      //let newtasks=[{}]
+      // const newtasks = tasks.filter((item) => item.id !== i);
+      // setTasks(newtasks);
+      await axios.delete(`http://localhost:3000/tasks/${i}`);
+
       const newtasks = await tasks.filter((item) => item.id !== i);
-      await  setTasks(newtasks);
-    }
-    catch(err){
+      console.log("newtasks:", newtasks);
+      queryClient.setQueryData(["todos"], newtasks);
+    } catch (err) {
       console.error(err);
       updateError(err);
     }
-  }
-  if (error) {
-    throw error;
-  }
+  };
+  // if (error) {
+  //   throw error;
+  // }
   // if (!isResolved) {
   //   console.log(getTasks)
   //   throw getTasks;
