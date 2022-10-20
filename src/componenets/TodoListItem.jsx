@@ -4,17 +4,35 @@ import { BsEyedropper } from "react-icons/bs";
 import { BsSdCard } from "react-icons/bs";
 import { BsXOctagonFill } from "react-icons/bs";
 import axios from "axios";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { deleteTodo, editTodo } from "./todoAxios";
 
-//const getTasks=axios.get("http://localhost:3000/tasks")
 export default function TodoItem() {
   const queryClient = useQueryClient();
-  const [, ] = useContext(TodoContext);
+  const [,] = useContext(TodoContext);
   const [isEdit, setisEdit] = useState([]);
-  const [updValue, ] = useState([{}]);
-  let [error, updateError] = useState(null);
+  const [updValue] = useState([{}]);
+  //let [error, updateError] = useState(null);
 
-  //let isResolved = false;
+  const deletem = useMutation(deleteTodo, {
+    onSuccess: (data, variable) => {
+      queryClient.setQueryData(
+        ["todos"],
+        tasks.filter((item) => item.id !== variable)
+      );
+    },
+  });
+
+  const editm = useMutation(editTodo,{onSuccess:(data,variable)=>{queryClient.setQueryData(
+    ["todos"],
+    tasks.map((item) => {
+      if (item.id === variable[0]) {
+        return { ...item, taskname: variable[1] };
+      }
+      return item;
+    })
+  );}});
+
   const { data: tasks, isLoading } = useQuery(
     ["todos"],
     () => {
@@ -25,88 +43,35 @@ export default function TodoItem() {
   if (isLoading) {
     return null;
   }
-  // getTasks.then((res)=>{
-  //   isResolved = true;
-  //   const body=res.data;
-  //   console.log(body)
-  //   body.map((item) => {
-  //     t.id = item.id;
-  //     t.taskname = item.taskname;
-  //     temp.push({ id: item.id, taskname: item.taskname });
-  //     //console.log("in use effect");
-  //   });
-  // }).then((a) => setTasks([...tasks, ...temp]))
 
-  // useEffect(() => {
-  //   console.log("in use effect");
-  //   axios
-  //     .get("http://localhost:3000/tasks")
-  //     .then((res) => res.data)
-  //     .then((body) => {
-  //       body.map((item) => {
-  //         t.id = item.id;
-  //         t.taskname = item.taskname;
-  //         temp.push({ id: item.id, taskname: item.taskname });
-  //         console.log("in use effect");
-  //       });
-  //     })
-  //     .then((a) => setTasks([...tasks, ...temp]));
-  //   console.log(tasks);
-  // }, []);
+  const deleteTask = async (i) => {
+    deletem.mutate(i);
+  };
 
   function updateItem(item, i, isEdit) {
     setisEdit([...isEdit, i]);
   }
 
   const onSave = async (i) => {
-    try {
-      const newisEdit = isEdit.filter((item, o) => item !== i);
-      setisEdit(newisEdit);
-      var taskname = "";
-      console.log(updValue);
-      updValue.map((item) => {
-        console.log("in updvalue ;", item);
-        if (item.id === i) {
-          taskname = item.taskname;
-          console.log(item.taskname, item.id);
-          return item;
-        }
+    const newisEdit = isEdit.filter((item, o) => item !== i);
+    setisEdit(newisEdit);
+    var taskname = "";
+    console.log(updValue);
+    updValue.map((item) => {
+      console.log("in updvalue ;", item);
+      if (item.id === i) {
+        taskname = item.taskname;
+        console.log(item.taskname, item.id);
         return item;
-      });
+      }
+      return item;
+    });
 
-      console.log("id:", i);
-      const res = await axios.put(`http://localhost:3000/tasks/${i}`, {
-        taskname,
-      });
-      // .then((res) => res.data)
-      // .then((body) => {
-      //   console.log("after PUT call", body.id, body.taskname);
-      //   setTasks(
-      //     tasks.map((item) => {
-      //       if (item.id === body.id) {
-      //         item.taskname = body.taskname;
-      //         return item;
-      //       }
-      //       return item;
-      //     })
-      //   );
-      // });
-      const body = await res.data;
-      console.log("after PUT call", body.id, body.taskname);
-      
-      queryClient.setQueryData(
-        ["todos"],
-        tasks.map((item) => {
-          if (item.id === body.id) {
-            return { ...item, taskname: body.taskname };
-          }
-          return item;
-        })
-      );
-    } catch (err) {
-      console.error(err);
-      updateError(err);
-    }
+    console.log("id:", i);
+    const array = [i, taskname];
+    editm.mutate(array);
+
+    
   };
 
   function onUpdate(e, item, i) {
@@ -127,28 +92,6 @@ export default function TodoItem() {
     });
   }
 
-  const deleteTask = async (i) => {
-    try {
-      //let newtasks=[{}]
-      // const newtasks = tasks.filter((item) => item.id !== i);
-      // setTasks(newtasks);
-      await axios.delete(`http://localhost:3000/tasks/${i}`);
-
-      const newtasks = await tasks.filter((item) => item.id !== i);
-      console.log("newtasks:", newtasks);
-      queryClient.setQueryData(["todos"], newtasks);
-    } catch (err) {
-      console.error(err);
-      updateError(err);
-    }
-  };
-  // if (error) {
-  //   throw error;
-  // }
-  // if (!isResolved) {
-  //   console.log(getTasks)
-  //   throw getTasks;
-  // }
   return (
     <div>
       {tasks.map((item) => (
@@ -159,28 +102,17 @@ export default function TodoItem() {
                 defaultValue={item.taskname}
                 onChange={(e) => onUpdate(e, item, item.id)}
               ></input>
-              {/* <button variant="primary" onClick={() => onSave(i)}>
-                save
-              </button>{" "} */}
+
               <BsSdCard onClick={() => onSave(item.id)} />
             </li>
           ) : (
             <li className="list-group-item">
               {item.taskname}
               &nbsp;
-              {/* <button
-                variant="primary"
-                onClick={() => updateItem(item, i, isEdit)}
-              >
-                Edit
-              </button>{" "} */}
               <BsEyedropper
                 onClick={() => updateItem(item.taskname, item.id, isEdit)}
               />
               &nbsp;
-              {/* <button variant="primary" onClick={() => deleteTask(i)}>
-                -
-              </button> */}
               <BsXOctagonFill onClick={() => deleteTask(item.id)} />
             </li>
           )}
