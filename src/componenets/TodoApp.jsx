@@ -4,8 +4,8 @@ import { TodoContext } from "./TodoContext";
 //import TodoItem from "./TodoListItem";
 import ErrorBoundary from "./ErrorBoudry";
 import React from "react";
-
-const TodoItem = React.lazy(() => import("./TodoListItem"));
+import TodoItem from "./TodoListItem";
+//const TodoItem = React.lazy(() => import("./TodoListItem"));
 
 export default function Todoapp() {
   const [tasks, setTasks] = useState([]);

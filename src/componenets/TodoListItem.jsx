@@ -4,6 +4,7 @@ import { BsEyedropper } from "react-icons/bs";
 import { BsSdCard } from "react-icons/bs";
 import { BsXOctagonFill } from "react-icons/bs";
 import axios from "axios";
+import createResource from "./createResource";
 
 //const getTasks=axios.get("http://localhost:3000/tasks")
 export default function TodoItem() {
@@ -11,6 +12,7 @@ export default function TodoItem() {
   const [isEdit, setisEdit] = useState([]);
   const [updValue, setUpdValue] = useState([{}]);
   let [error, updateError] = useState(null);
+  const [loading,setLoading]=useState()
   var temp = [];
   var t = {};
   let isResolved = false;
@@ -28,6 +30,7 @@ export default function TodoItem() {
   // }).then((a) => setTasks([...tasks, ...temp]))
   
   useEffect(() => {
+    setLoading(true);
     console.log("in use effect");
     axios
       .get("http://localhost:3000/tasks")
@@ -40,7 +43,7 @@ export default function TodoItem() {
           console.log("in use effect");
         });
       })
-      .then((a) => setTasks([...tasks, ...temp]));
+      .then((a) => setTasks([...tasks, ...temp])).finally(() => setLoading(false));;
     console.log(tasks);
   }, []);
 
@@ -139,6 +142,9 @@ export default function TodoItem() {
   }
   if (error) {
     throw error;
+  }
+  if (loading) {
+    return <h1>Loading wait...</h1>;
   }
   // if (!isResolved) {
   //   console.log(getTasks)
