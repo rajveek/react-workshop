@@ -1,10 +1,10 @@
-import Greeting from './Greeting';
+import Main from './component/Main';
 import './App.css';
 
 function App(props) {
   
   return (
-   <Greeting/>
+   <Main/>
   );
 }
 
